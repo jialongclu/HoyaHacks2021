@@ -37,7 +37,7 @@ class StockFinder():
         ret = []
 
         for s in stockPrices:
-            ret.append(s['close'])
+            ret.append([s['datetime'],s['close']])
         
         return ret
 

@@ -29,11 +29,17 @@ class TweetModel(db.Model):
     day3Price = db.Column(db.Float())
     day4Price = db.Column(db.Float())
     day5Price = db.Column(db.Float())
+    day1 = db.Column(db.String())
+    day2 = db.Column(db.String())
+    day3 = db.Column(db.String())
+    day4 = db.Column(db.String())
+    day5 = db.Column(db.String())
     company = db.Column(db.String())
     numOfTweets = db.Column(db.Integer())
 
     def __init__(self, tweet_id, tweet, tweet_sentiment, tweet_name, tweet_username, tweet_likes, 
-    tweet_datestamp, day1Price, day2Price, day3Price, day4Price, day5Price, company, numOfTweets):
+    tweet_datestamp, day1Price, day2Price, day3Price, day4Price, day5Price, company, numOfTweets,
+    day1, day2, day3, day4, day5):
         self.tweet_id = tweet_id
         self.tweet = tweet
         self.tweet_sentiment = tweet_sentiment
@@ -46,6 +52,11 @@ class TweetModel(db.Model):
         self.day3Price = day3Price
         self.day4Price = day4Price
         self.day5Price = day5Price
+        self.day1 = day1
+        self.day2 = day2
+        self.day3 = day3
+        self.day4 = day4
+        self.day5P = day5
         self.company = company
         self.numOfTweets = numOfTweets
 
@@ -84,7 +95,8 @@ def displayTweets():
         ret = []
 
         if hasTicker == False:
-            return "COULD NOT FIND COMPANY. RETRY!"
+            return render_template('errorPage.html', 
+            errorMessage='Sorry for the inconvenience! We could not find public financial data for the company you searched for')
 
         for t in filteredTweets:
             if len(ret) >= 8:
@@ -101,16 +113,19 @@ def displayTweets():
                     score = sentimentAnalyzer.checkSentiment(sentiment)
                     
                     stockPrices = stockFinder.getStockPrice(t.datestamp)
+                    print(stockPrices)
 
                     saveData = TweetModel(tweet_id=t.id, tweet=t.tweet, tweet_sentiment=score, tweet_name=t.name, 
                     tweet_username=t.username, tweet_likes=t.likes_count, tweet_datestamp=t.datestamp, 
-                    day1Price=stockPrices[0], day2Price=stockPrices[1], day3Price=stockPrices[2], day4Price=stockPrices[3], day5Price=stockPrices[4], company=companyName, numOfTweets=len(filteredTweets))
+                    day1Price=stockPrices[-1][1], day2Price=stockPrices[-2][1], day3Price=stockPrices[-3][1], day4Price=stockPrices[-4][1], 
+                    day5Price=stockPrices[-5][1], day1=stockPrices[-1][0], day2=stockPrices[-2][0], day3=stockPrices[-3][0], day4=stockPrices[-4][0], 
+                    day5=stockPrices[-5][0], company=companyName, numOfTweets=len(filteredTweets))
                     db.session.add(saveData)
                     db.session.commit()
                 except exc.SQLAlchemyError as e:
                     pass
         return render_template('displayTweets.html', data={'tweets':ret, 'numOfTweets': len(filteredTweets)})
-    return 'Wrong'
+    return render_template('errorPage.html', errorMessage='Sorry for the inconvenience! One of the inputs you have entered is incorrect or does not exist')
 
 
 @app.route('/tweetProfile', methods=['GET', 'POST'])
