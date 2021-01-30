@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from SearchForm import SearchForm
+from TweetFinder import TweetFinder
 
 app = Flask(__name__)
 
@@ -7,13 +8,19 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/displayTweets', methods=['GET', 'POST'])
-def displayTweets():
+@app.route('/displayTweets/<username>', methods=['GET', 'POST'])
+def displayTweets(username):
     form = SearchForm(request.form)
     if request.method == 'POST' and form.validate():
-        twitterUser = form.username.data
-        companyName = form.company.data
-        return 'It was validated'
+        # Handling Twitter
+        twitterUser = str(form.username.data)
+        companyName = str(form.company.data)
+        finder = TweetFinder(twitterUser, companyName)
+        filteredTweets = finder.findFilteredTweets()
+        user = finder.getUser()
+        finder.saveAvatarLocally(user)
+        return finder.getUser().name
+
     return 'Wrong'
 if __name__ == '__main__':
     app.run(debug=True)
