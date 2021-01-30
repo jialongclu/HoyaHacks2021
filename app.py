@@ -7,6 +7,7 @@ from sqlalchemy import exc
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from TweetObject import TweetObject
+from stock_chart import stock_chart
 import datetime
 
 app = Flask(__name__)
@@ -132,8 +133,14 @@ def displayTweets():
 def tweetProfile():
     if request.method == 'POST':
         data = TweetModel.query.get(request.form['id'])
+        stockPrices = [data.day1Price, data.day2Price, data.day3Price, data.day4Price, data.day5Price]
+        dates = [data.day1, data.day2, data.day3, data.day4, data.day5]
+        graph_range = (max(stockPrices) - min(stockPrices)) * 2
+        y_min = min(stockPrices) - graph_range/4
+        stock_chart(stockPrices, dates, y_min, graph_range, data.company)
         JSON = {'company': data.company, 'id': request.form['id'], 'sentiment': data.tweet_sentiment, "username": data.tweet_username,
-        "one":data.day1Price, "two": data.day2Price, "three":data.day3Price, "four": data.day4Price, "five": data.day5Price, "tweet": data.tweet}
+        "one":data.day1Price, "two": data.day2Price, "three":data.day3Price, "four": data.day4Price, "five": data.day5Price, 
+        "tweet": data.tweet, "dayOne": data.day1}
         return render_template('tweetProfile.html', data=JSON)
 
 if __name__ == '__main__':

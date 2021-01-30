@@ -5,4 +5,5 @@
 {% endblock %}
 {% block content %}
 <p>{{data}}</p>
+<img src="{{url_for('static', filename='/stock_charts/' + data['dayOne'] + '_' + data['company'] + '_stock_chart.png')}}">
 {% endblock %}

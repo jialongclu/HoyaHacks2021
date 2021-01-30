@@ -1,9 +1,7 @@
 import matplotlib.pyplot as plt 
 plt.style.use('seaborn-whitegrid')
 #import numpy as np 
-
-
-matplotlib.pyplot.switch_backend('Agg')
+plt.switch_backend('Agg')
 
 def stock_chart(data, dates, y_min, y_range, company):
     """A function to generate a 5 day stock chart of a specific company given the date and price data"""
@@ -41,10 +39,10 @@ def stock_chart(data, dates, y_min, y_range, company):
     plt.savefig("static/stock_charts/" + start_date + "_" + company + "_stock_chart.png")
 
 
-def main():
-    data = [33, 25, 88, 50, 30]
-    dates = ['Jan 1', 'Jan 2', 'Jan 3', 'Jan 4', 'Jan 5']
-    stock_chart(data, dates, 0, 100, "apple")
+# def main():
+#     data = [33, 25, 88, 50, 30]
+#     dates = ['Jan 1', 'Jan 2', 'Jan 3', 'Jan 4', 'Jan 5']
+#     stock_chart(data, dates, 0, 100, "apple")
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
