@@ -22,5 +22,12 @@ def displayTweets():
         return render_template('displayTweets.html', data=filteredTweets)
 
     return 'Wrong'
+
+
+@app.route('/tweetProfile', methods=['GET', 'POST'])
+def tweetProfile():
+    if request.method == 'POST':
+        return render_template('tweetProfile.html', data=request.form['id'])
+
 if __name__ == '__main__':
     app.run(debug=True)
