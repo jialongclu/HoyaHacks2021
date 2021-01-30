@@ -6,6 +6,7 @@ from SentimentAnalyzer import SentimentAnalyzer
 from sqlalchemy import exc
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from TweetObject import TweetObject
 import datetime
 
 app = Flask(__name__)
@@ -54,9 +55,17 @@ def index():
 def displayTweets():
     form = SearchForm(request.form)
     if request.method == 'POST' and form.validate():
-        # Handling Twitter
         twitterUser = str(form.username.data)
         companyName = str(form.company.data)
+        users = TweetModel.query.filter(TweetModel.tweet_username == twitterUser, TweetModel.company == companyName).all()
+        ret = []
+        for user in users:
+            tweetObject = TweetObject(user.tweet_name, user.tweet_username, user.tweet_datestamp, user.tweet_likes, user.tweet, user.tweet_id)
+            ret.append(tweetObject)
+        if len(ret) > 0:
+            return render_template('displayTweets.html', data=ret)
+
+        # Handling Twitter
         finder = TweetFinder(twitterUser, companyName)
         filteredTweets = finder.findFilteredTweets()
         user = finder.getUser()
@@ -79,8 +88,6 @@ def displayTweets():
             if normalizedDate <= tenDaysBeforeToday:
                 ret.append(t)
                 try:
-                    # Fix Logic Tomorrow
-
                     sentimentAnalyzer = SentimentAnalyzer()
                     sentiment = sentimentAnalyzer.getSentiment(t.tweet)
                     score = sentimentAnalyzer.checkSentiment(sentiment)
@@ -95,6 +102,7 @@ def displayTweets():
                 except exc.SQLAlchemyError as e:
                     pass
         return render_template('displayTweets.html', data=ret)
+
 
     return 'Wrong'
 
