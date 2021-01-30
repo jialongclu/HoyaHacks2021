@@ -12,12 +12,10 @@ class TweetFinder():
         self.config.Filter_retweets = True
         self.config.Popular_tweets = True
         self.config.Search = companyName
-        # TODO: Remove Limit for Demo
-        self.Limit = 1
 
     def findFilteredTweets(self):
         twint.run.Search(self.config)
-        listofTweets = twint.output.tweets_list[:8]
+        listofTweets = twint.output.tweets_list
         return listofTweets
 
     def getUser(self):

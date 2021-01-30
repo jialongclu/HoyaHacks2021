@@ -72,28 +72,28 @@ def displayTweets():
         for t in filteredTweets:
             if len(ret) >= 8:
                 break
-            try:
-                todaysDate = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y-%m-%d'), '%Y-%m-%d')
-                tenDaysBeforeToday = todaysDate - datetime.timedelta(days=10)
-                normalizedDate = datetime.datetime.strptime(t.datestamp, "%Y-%m-%d")
+            todaysDate = datetime.datetime.strptime(datetime.datetime.today().strftime('%Y-%m-%d'), '%Y-%m-%d')
+            tenDaysBeforeToday = todaysDate - datetime.timedelta(days=10)
+            normalizedDate = datetime.datetime.strptime(t.datestamp, "%Y-%m-%d")
 
-                if normalizedDate > tenDaysBeforeToday:
-                    continue
-
-                sentimentAnalyzer = SentimentAnalyzer()
-                sentiment = sentimentAnalyzer.getSentiment(t.tweet)
-                score = sentimentAnalyzer.checkSentiment(sentiment)
-                
-                stockPrices = stockFinder.getStockPrice(t.datestamp)
+            if normalizedDate <= tenDaysBeforeToday:
                 ret.append(t)
+                try:
+                    # Fix Logic Tomorrow
 
-                saveData = TweetModel(tweet_id=t.id, tweet=t.tweet, tweet_sentiment=score, tweet_name=t.name, 
-                tweet_username=t.username, tweet_likes=t.likes_count, tweet_datestamp=t.datestamp, 
-                day1Price=stockPrices[0], day2Price=stockPrices[1], day3Price=stockPrices[2], day4Price=stockPrices[3], day5Price=stockPrices[4], company=companyName)
-                db.session.add(saveData)
-                db.session.commit()
-            except exc.SQLAlchemyError as e:
-                pass
+                    sentimentAnalyzer = SentimentAnalyzer()
+                    sentiment = sentimentAnalyzer.getSentiment(t.tweet)
+                    score = sentimentAnalyzer.checkSentiment(sentiment)
+                    
+                    stockPrices = stockFinder.getStockPrice(t.datestamp)
+
+                    saveData = TweetModel(tweet_id=t.id, tweet=t.tweet, tweet_sentiment=score, tweet_name=t.name, 
+                    tweet_username=t.username, tweet_likes=t.likes_count, tweet_datestamp=t.datestamp, 
+                    day1Price=stockPrices[0], day2Price=stockPrices[1], day3Price=stockPrices[2], day4Price=stockPrices[3], day5Price=stockPrices[4], company=companyName)
+                    db.session.add(saveData)
+                    db.session.commit()
+                except exc.SQLAlchemyError as e:
+                    pass
         return render_template('displayTweets.html', data=ret)
 
     return 'Wrong'
