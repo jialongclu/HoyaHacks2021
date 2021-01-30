@@ -102,10 +102,6 @@ def displayTweets():
                 except exc.SQLAlchemyError as e:
                     pass
         return render_template('displayTweets.html', data=ret)
-    elif request.method["GET"]:
-        return "GET METHOD"
-
-
     return 'Wrong'
 
 
