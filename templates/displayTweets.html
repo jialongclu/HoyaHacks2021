@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
+{% block head %}
+<title>Tweets We Found</title>
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='/stylesheets/displayTweets.css') }}">
+{% endblock %}
 {% for item in data %}
 <form action="{{ url_for('tweetProfile') }}" method="POST">
     <input type="hidden" name="id" value={{item.id}}>
