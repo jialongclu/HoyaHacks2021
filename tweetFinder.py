@@ -19,7 +19,7 @@ class TweetFinder():
         twint.run.Search(self.config)
         listofTweets = twint.output.tweets_list[:8]
         return listofTweets
-    
+
     def getUser(self):
         twint.run.Lookup(self.config)
         user = twint.output.users_list[0]

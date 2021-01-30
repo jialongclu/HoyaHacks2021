@@ -4,11 +4,11 @@
 <form action="{{ url_for('tweetProfile') }}" method="POST">
     <input type="hidden" name="id" value={{item.id}}>
         <ul>
-            <li>{{item.name}}</li>
-            <li>{{item.username}}</li>
-            <li>{{item.datestamp}}</li>
-            <li>{{item.likes_count}}</li>
-            <li>{{item.tweet}}</li>
+            <li>{{item['name']}}</li>
+            <li>{{item['username']}}</li>
+            <li>{{item['datestamp']}}</li>
+            <li>{{item['likes_count']}}</li>
+            <li>{{item['tweet']}}</li>
             <img src="{{url_for('static', filename='/images/' + item.username + '.jpg')}}">
         </ul>
         <input type="submit">
