@@ -28,9 +28,10 @@ class TweetModel(db.Model):
     day3Price = db.Column(db.Float())
     day4Price = db.Column(db.Float())
     day5Price = db.Column(db.Float())
+    company = db.Column(db.String())
 
     def __init__(self, tweet_id, tweet, tweet_sentiment, tweet_name, tweet_username, tweet_likes, 
-    tweet_datestamp, day1Price, day2Price, day3Price, day4Price, day5Price):
+    tweet_datestamp, day1Price, day2Price, day3Price, day4Price, day5Price, company):
         self.tweet_id = tweet_id
         self.tweet = tweet
         self.tweet_sentiment = tweet_sentiment
@@ -43,6 +44,7 @@ class TweetModel(db.Model):
         self.day3Price = day3Price
         self.day4Price = day4Price
         self.day5Price = day5Price
+        self.company = company
 
 @app.route('/')
 def index():
@@ -83,17 +85,15 @@ def displayTweets():
                 score = sentimentAnalyzer.checkSentiment(sentiment)
                 
                 stockPrices = stockFinder.getStockPrice(t.datestamp)
-                saveMe = {"name": t.name, "username": t.username, "datestamp": t.datestamp, "likes_count": t.likes_count, "tweet": t.tweet}
-                ret.append(saveMe)
+                ret.append(t)
 
                 saveData = TweetModel(tweet_id=t.id, tweet=t.tweet, tweet_sentiment=score, tweet_name=t.name, 
                 tweet_username=t.username, tweet_likes=t.likes_count, tweet_datestamp=t.datestamp, 
-                day1Price=stockPrices[0], day2Price=stockPrices[1], day3Price=stockPrices[2], day4Price=stockPrices[3], day5Price=stockPrices[4])
+                day1Price=stockPrices[0], day2Price=stockPrices[1], day3Price=stockPrices[2], day4Price=stockPrices[3], day5Price=stockPrices[4], company=companyName)
                 db.session.add(saveData)
                 db.session.commit()
             except exc.SQLAlchemyError as e:
                 pass
-        print(ret)
         return render_template('displayTweets.html', data=ret)
 
     return 'Wrong'
@@ -102,7 +102,10 @@ def displayTweets():
 @app.route('/tweetProfile', methods=['GET', 'POST'])
 def tweetProfile():
     if request.method == 'POST':
-        return render_template('tweetProfile.html', data=request.form['id'])
+        data = TweetModel.query.get(request.form['id'])
+        JSON = {'company': data.company, 'id': request.form['id'], 'sentiment': data.tweet_sentiment, "username": data.tweet_username,
+        "one":data.day1Price, "two": data.day2Price, "three":data.day3Price, "four": data.day4Price, "five": data.day5Price, "tweet": data.tweet}
+        return render_template('tweetProfile.html', data=JSON)
 
 if __name__ == '__main__':
     app.run(debug=True)
