@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 plt.style.use('seaborn-whitegrid')
 #import numpy as np 
 
+
+matplotlib.pyplot.switch_backend('Agg')
+
 def stock_chart(data, dates, y_min, y_range, company):
     """A function to generate a 5 day stock chart of a specific company given the date and price data"""
     # create the plot using data and set it to a certain colour

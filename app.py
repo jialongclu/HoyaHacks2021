@@ -56,7 +56,7 @@ class TweetModel(db.Model):
         self.day2 = day2
         self.day3 = day3
         self.day4 = day4
-        self.day5P = day5
+        self.day5 = day5
         self.company = company
         self.numOfTweets = numOfTweets
 
