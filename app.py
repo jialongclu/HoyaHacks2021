@@ -23,16 +23,17 @@ class TweetModel(db.Model):
     tweet_name = db.Column(db.String())
     tweet_username = db.Column(db.String())
     tweet_likes = db.Column(db.Integer())
-    tweet_datestamp = db.Column(db.String())
+    tweet_datestamp = db.Column(db.Date())
     day1Price = db.Column(db.Float())
     day2Price = db.Column(db.Float())
     day3Price = db.Column(db.Float())
     day4Price = db.Column(db.Float())
     day5Price = db.Column(db.Float())
     company = db.Column(db.String())
+    numOfTweets = db.Column(db.Integer())
 
     def __init__(self, tweet_id, tweet, tweet_sentiment, tweet_name, tweet_username, tweet_likes, 
-    tweet_datestamp, day1Price, day2Price, day3Price, day4Price, day5Price, company):
+    tweet_datestamp, day1Price, day2Price, day3Price, day4Price, day5Price, company, numOfTweets):
         self.tweet_id = tweet_id
         self.tweet = tweet
         self.tweet_sentiment = tweet_sentiment
@@ -46,6 +47,7 @@ class TweetModel(db.Model):
         self.day4Price = day4Price
         self.day5Price = day5Price
         self.company = company
+        self.numOfTweets = numOfTweets
 
 @app.route('/')
 def index():
@@ -57,16 +59,19 @@ def displayTweets():
     if request.method == 'POST' and form.validate():
         twitterUser = str(form.username.data)
         companyName = str(form.company.data)
-        users = TweetModel.query.filter(TweetModel.tweet_username == twitterUser, TweetModel.company == companyName).all()
+        before = str(form.before.data)
+        users = TweetModel.query.filter(TweetModel.tweet_username == twitterUser, TweetModel.company == companyName, TweetModel.tweet_datestamp <= before).all()
         ret = []
+        numOfTweets = 0
         for user in users:
             tweetObject = TweetObject(user.tweet_name, user.tweet_username, user.tweet_datestamp, user.tweet_likes, user.tweet, user.tweet_id)
+            numOfTweets = user.numOfTweets
             ret.append(tweetObject)
         if len(ret) > 0:
-            return render_template('displayTweets.html', data=ret)
+            return render_template('displayTweets.html', data={'tweets':ret, 'numOfTweets': numOfTweets})
 
         # Handling Twitter
-        finder = TweetFinder(twitterUser, companyName)
+        finder = TweetFinder(twitterUser, companyName, before)
         filteredTweets = finder.findFilteredTweets()
         user = finder.getUser()
         finder.saveAvatarLocally(user)
@@ -96,12 +101,12 @@ def displayTweets():
 
                     saveData = TweetModel(tweet_id=t.id, tweet=t.tweet, tweet_sentiment=score, tweet_name=t.name, 
                     tweet_username=t.username, tweet_likes=t.likes_count, tweet_datestamp=t.datestamp, 
-                    day1Price=stockPrices[0], day2Price=stockPrices[1], day3Price=stockPrices[2], day4Price=stockPrices[3], day5Price=stockPrices[4], company=companyName)
+                    day1Price=stockPrices[0], day2Price=stockPrices[1], day3Price=stockPrices[2], day4Price=stockPrices[3], day5Price=stockPrices[4], company=companyName, numOfTweets=len(filteredTweets))
                     db.session.add(saveData)
                     db.session.commit()
                 except exc.SQLAlchemyError as e:
                     pass
-        return render_template('displayTweets.html', data=ret)
+        return render_template('displayTweets.html', data={'tweets':ret, 'numOfTweets': len(filteredTweets)})
     return 'Wrong'
 
 

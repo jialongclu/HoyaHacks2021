@@ -4,7 +4,7 @@ import urllib.request
 class TweetFinder():
     config = None
     
-    def __init__(self, tweet_id, companyName):
+    def __init__(self, tweet_id, companyName, until):
         self.config = twint.Config()
         self.config.Username = tweet_id
         self.config.Store_object = True
@@ -12,6 +12,7 @@ class TweetFinder():
         self.config.Filter_retweets = True
         self.config.Popular_tweets = True
         self.config.Search = companyName
+        self.config.Until = until
 
     def findFilteredTweets(self):
         twint.run.Search(self.config)
