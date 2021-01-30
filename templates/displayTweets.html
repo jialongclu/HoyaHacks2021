@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+{% for item in data %}
+<ul>
+    <li>{{item.name}}</li>
+    <li>{{item.username}}</li>
+    <li>{{item.datestamp}}</li>
+    <li>{{item.likes_count}}</li>
+    <li>{{item.tweet}}</li>
+</ul>
+{% endfor %}
+{% endblock %}

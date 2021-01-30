@@ -8,8 +8,8 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/displayTweets/<username>', methods=['GET', 'POST'])
-def displayTweets(username):
+@app.route('/displayTweets', methods=['GET', 'POST'])
+def displayTweets():
     form = SearchForm(request.form)
     if request.method == 'POST' and form.validate():
         # Handling Twitter
@@ -19,7 +19,7 @@ def displayTweets(username):
         filteredTweets = finder.findFilteredTweets()
         user = finder.getUser()
         finder.saveAvatarLocally(user)
-        return finder.getUser().name
+        return render_template('displayTweets.html', data=filteredTweets)
 
     return 'Wrong'
 if __name__ == '__main__':
