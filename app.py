@@ -60,7 +60,10 @@ def displayTweets():
         twitterUser = str(form.username.data)
         companyName = str(form.company.data)
         before = str(form.before.data)
-        users = TweetModel.query.filter(TweetModel.tweet_username == twitterUser, TweetModel.company == companyName, TweetModel.tweet_datestamp <= before).all()
+        oneMonthBefore = datetime.datetime.strptime(before, '%Y-%m-%d')
+        oneMonthBefore = oneMonthBefore - datetime.timedelta(days=30)
+        users = TweetModel.query.filter(TweetModel.tweet_username == twitterUser, TweetModel.company == companyName, TweetModel.tweet_datestamp <= before, 
+        TweetModel.tweet_datestamp >= oneMonthBefore).all()
         ret = []
         numOfTweets = 0
         for user in users:
