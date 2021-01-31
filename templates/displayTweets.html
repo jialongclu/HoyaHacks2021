@@ -22,7 +22,7 @@ crossorigin="anonymous"
     </nav>
     <div class="container">
       <div class="row main-text justify-content-center" style="color: white;">
-        <h1>@{{data['tweets'][0].username}} has {{data['numOfTweets']}} tweets about Amazon</h1>
+        <h1>@{{data['tweets'][0].username}} has {{data['numOfTweets']}} tweets about {{data["companyNom"]}} before {{data['tweets'][0].datestamp}}</h1>
         <img  class="small-rocket" src ="../static/designImages/rocket.png">
       </div>
 

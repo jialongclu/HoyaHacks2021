@@ -71,12 +71,13 @@ def index():
 @app.route('/displayTweets', methods=['GET', 'POST'])
 def displayTweets():
     form = SearchForm(request.form)
+    companyNom = str(form.company.data)
     if request.method == 'POST' and form.validate():
         twitterUser = str(form.username.data)
         companyName = str(form.company.data)
         before = str(form.before.data)
         oneMonthBefore = datetime.datetime.strptime(before, '%Y-%m-%d')
-        oneMonthBefore = oneMonthBefore - datetime.timedelta(days=60)
+        oneMonthBefore = oneMonthBefore - datetime.timedelta(days=30)
         users = TweetModel.query.filter(TweetModel.tweet_username == twitterUser, TweetModel.company == companyName, TweetModel.tweet_datestamp <= before, 
         TweetModel.tweet_datestamp >= oneMonthBefore).all()
         ret = []
@@ -85,8 +86,8 @@ def displayTweets():
             tweetObject = TweetObject(user.tweet_name, user.tweet_username, user.tweet_datestamp, user.tweet_likes, user.tweet, user.tweet_id)
             numOfTweets = user.numOfTweets
             ret.append(tweetObject)
-        if len(ret) > 0:
-            return render_template('displayTweets.html', data={'tweets':ret, 'numOfTweets': numOfTweets})
+        if len(ret) > 0 and len(users) >= 8:
+            return render_template('displayTweets.html', data={'tweets':ret, 'numOfTweets': numOfTweets, 'companyNom': companyName})
 
         # Handling Twitter
         finder = TweetFinder(twitterUser, companyName, before)
@@ -147,7 +148,7 @@ def displayTweets():
                     db.session.commit()
                 except exc.SQLAlchemyError as e:
                     pass
-        return render_template('displayTweets.html', data={'tweets':ret, 'numOfTweets': len(filteredTweets)})
+        return render_template('displayTweets.html', data={'tweets':ret, 'numOfTweets': len(filteredTweets), 'datestamp': ret[0].datestamp, "companyNom": str(companyNom) })
     return render_template('errorPage.html', errorMessage='Sorry for the inconvenience! One of the inputs you have entered is incorrect or does not exist')
 
 
