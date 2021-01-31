@@ -12,6 +12,11 @@ body{
     margin-top: 300px;
 }
 
+.navbar-brand {
+    margin-top: 20px;
+}
+
+
 .form-area{
     margin-top: 100px;
 }

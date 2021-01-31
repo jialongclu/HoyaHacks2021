@@ -126,3 +126,7 @@
     margin-top: 50px;
     float: right;
 }
+
+.navbar-brand {
+    margin-top: 20px;
+}

@@ -108,6 +108,10 @@
     text-align: center;
 }
 
+.navbar-brand {
+    margin-top: 20px;
+}
+
 
 
 .credibility-score{
