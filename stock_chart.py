@@ -6,6 +6,7 @@ plt.switch_backend('Agg')
 def stock_chart(data, dates, y_min, y_range, company):
     """A function to generate a 5 day stock chart of a specific company given the date and price data"""
     # create the plot using data and set it to a certain colour
+    plt.clf() 
     lines = plt.plot(data, color="black")#, linestyle='dashdot')
 
     # set the range of the x- and y-axes
@@ -37,6 +38,7 @@ def stock_chart(data, dates, y_min, y_range, company):
 
     # save the graph as a png with the format startdate_company_stock_chart.png
     plt.savefig("static/stock_charts/" + start_date + "_" + company + "_stock_chart.png")
+
 
 
 # def main():

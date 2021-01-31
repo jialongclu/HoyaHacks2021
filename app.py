@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from TweetObject import TweetObject
 from stock_chart import stock_chart
+from LineOfBestFit import LineOfBestFit
 import datetime
 
 app = Flask(__name__)
@@ -36,11 +37,12 @@ class TweetModel(db.Model):
     day4 = db.Column(db.String())
     day5 = db.Column(db.String())
     company = db.Column(db.String())
+    credibilityScore = db.Column(db.Float())
     numOfTweets = db.Column(db.Integer())
 
     def __init__(self, tweet_id, tweet, tweet_sentiment, tweet_name, tweet_username, tweet_likes, 
     tweet_datestamp, day1Price, day2Price, day3Price, day4Price, day5Price, company, numOfTweets,
-    day1, day2, day3, day4, day5):
+    day1, day2, day3, day4, day5, credibilityScore):
         self.tweet_id = tweet_id
         self.tweet = tweet
         self.tweet_sentiment = tweet_sentiment
@@ -60,6 +62,7 @@ class TweetModel(db.Model):
         self.day5 = day5
         self.company = company
         self.numOfTweets = numOfTweets
+        self.credibilityScore = credibilityScore
 
 @app.route('/')
 def index():
@@ -73,7 +76,7 @@ def displayTweets():
         companyName = str(form.company.data)
         before = str(form.before.data)
         oneMonthBefore = datetime.datetime.strptime(before, '%Y-%m-%d')
-        oneMonthBefore = oneMonthBefore - datetime.timedelta(days=30)
+        oneMonthBefore = oneMonthBefore - datetime.timedelta(days=60)
         users = TweetModel.query.filter(TweetModel.tweet_username == twitterUser, TweetModel.company == companyName, TweetModel.tweet_datestamp <= before, 
         TweetModel.tweet_datestamp >= oneMonthBefore).all()
         ret = []
@@ -94,6 +97,7 @@ def displayTweets():
         stockFinder = StockFinder(companyName)
         hasTicker = stockFinder.hasTicker()
         ret = []
+        lineOfBestFit = LineOfBestFit()
 
         if hasTicker == False:
             return render_template('errorPage.html', 
@@ -112,15 +116,33 @@ def displayTweets():
                     sentimentAnalyzer = SentimentAnalyzer()
                     sentiment = sentimentAnalyzer.getSentiment(t.tweet)
                     score = sentimentAnalyzer.checkSentiment(sentiment)
+                    creds = None
                     
                     stockPrices = stockFinder.getStockPrice(t.datestamp)
-                    print(stockPrices)
+                    lineOfBestFit = LineOfBestFit()
+                    lineOfBestFit.getLineOfBestFit([float(stockPrices[-1][1]), float(stockPrices[-2][1]), float(stockPrices[-3][1]), float(stockPrices[-4][1]), float(stockPrices[-5][1])])
+                    fitScore = lineOfBestFit.getSlope()
+
+                    if score == -1 and fitScore > 0:
+                        creds = -1
+                    elif score == 1 and fitScore < 0:
+                        creds = -1
+                    elif score == 1 and fitScore > 0:
+                        creds = 1
+                    elif score == -1 and fitScore < 0:
+                        creds = 1
+                    else:
+                        creds = 0
+
+
+                    # print(stockPrices)
+
 
                     saveData = TweetModel(tweet_id=t.id, tweet=t.tweet, tweet_sentiment=score, tweet_name=t.name, 
                     tweet_username=t.username, tweet_likes=t.likes_count, tweet_datestamp=t.datestamp, 
                     day1Price=stockPrices[-1][1], day2Price=stockPrices[-2][1], day3Price=stockPrices[-3][1], day4Price=stockPrices[-4][1], 
                     day5Price=stockPrices[-5][1], day1=stockPrices[-1][0], day2=stockPrices[-2][0], day3=stockPrices[-3][0], day4=stockPrices[-4][0], 
-                    day5=stockPrices[-5][0], company=companyName, numOfTweets=len(filteredTweets))
+                    day5=stockPrices[-5][0], company=companyName, numOfTweets=len(filteredTweets), credibilityScore=creds)
                     db.session.add(saveData)
                     db.session.commit()
                 except exc.SQLAlchemyError as e:
@@ -138,9 +160,19 @@ def tweetProfile():
         graph_range = (max(stockPrices) - min(stockPrices)) * 2
         y_min = min(stockPrices) - graph_range/4
         stock_chart(stockPrices, dates, y_min, graph_range, data.company)
+
+        word = None
+        if data.credibilityScore == 1:
+            word = 'good'
+        elif data.credibilityScore == -1:
+            word = 'bad'
+        else:
+            word = 'neutral'
+
         JSON = {'company': data.company, 'id': request.form['id'], 'sentiment': data.tweet_sentiment, "username": data.tweet_username,
         "one":data.day1Price, "two": data.day2Price, "three":data.day3Price, "four": data.day4Price, "five": data.day5Price, 
-        "tweet": data.tweet, "dayOne": data.day1}
+        "tweet": data.tweet, "dayOne": data.day1, "name": data.tweet_name, "tweet_count": data.numOfTweets, "datestamp": data.tweet_datestamp,
+         "likes": data.tweet_likes, 'credibilityScore': data.credibilityScore, "word": word}
         return render_template('tweetProfile.html', data=JSON)
 
 if __name__ == '__main__':

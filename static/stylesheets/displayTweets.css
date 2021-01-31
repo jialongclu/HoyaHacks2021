@@ -46,8 +46,11 @@
     }
   }
 
-
   /* Tweets Page */
+
+  .main-text {
+    margin-top:100px;
+  }
 
   .tweets-bg{
     background: url("../designImages/stars.png") no-repeat fixed; 
