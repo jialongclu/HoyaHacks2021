@@ -12,7 +12,8 @@ from LineOfBestFit import LineOfBestFit
 import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:postgres@localhost:5432/HoyaHacks"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:password@localhost:5432/HoyaHacks"
+#test
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
