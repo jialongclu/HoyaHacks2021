@@ -1,8 +1,10 @@
 from twelvedata import TDClient
 import datetime
 import csv
+import os
 
-td = TDClient(apikey="3df6cf3457334dbd8ad83f1a3dae3227")
+api_key = os.environ.get('TWELVEDATA_API_KEY')
+td = TDClient(apikey=api_key)
 NASDAQ_file = csv.reader(open('publicCompanies/NASDAQ.csv', "r"), delimiter=",")
 NYSE_file = csv.reader(open('publicCompanies/NYSE.csv', "r"), delimiter=",")
 
